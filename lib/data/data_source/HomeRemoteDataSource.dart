@@ -19,7 +19,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     try {
       final response = await dioClient.get(
         ApiEndpoints.searchMovies,
-        queryParameters: {'query': query},
+        queryParameters: {'q': query},
       );
 
       if (response.statusCode == 200) {

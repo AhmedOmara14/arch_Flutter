@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-
 import 'ApiEndpoints.dart';
 
 class DioClient {
@@ -18,16 +17,32 @@ class DioClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          print('REQUEST[${options.method}] => PATH: ${options.path}');
-          return handler.next(options);
+          print('OKHTTP: ─────── REQUEST ───────────────────────────────');
+          print('OKHTTP: METHOD: ${options.method}');
+          print('OKHTTP: URL: ${options.baseUrl}${options.path}');
+          if (options.queryParameters.isNotEmpty) {
+            print('OKHTTP: QUERY PARAMETERS: ${options.queryParameters}');
+          }
+          if (options.data != null) {
+            print('OKHTTP: BODY: ${options.data}');
+          }
+          handler.next(options);
         },
         onResponse: (response, handler) {
-          print('RESPONSE[${response.statusCode}] => DATA: ${response.data}');
-          return handler.next(response);
+          print('OKHTTP: ─────── RESPONSE ──────────────────────────────');
+          print('OKHTTP: STATUS: ${response.statusCode}');
+          print('OKHTTP: DATA: ${response.data}');
+          handler.next(response);
         },
         onError: (DioException e, handler) {
-          print('ERROR[${e.response?.statusCode}] => MESSAGE: ${e.message}');
-          return handler.next(e);
+          print('OKHTTP: ─────── ERROR ─────────────────────────────────');
+          print('OKHTTP: MESSAGE: ${e.message}');
+          if (e.response != null) {
+            print('OKHTTP: STATUS: ${e.response?.statusCode}');
+            print('OKHTTP: HEADERS: ${e.response?.headers}');
+            print('OKHTTP: DATA: ${e.response?.data}');
+          }
+          handler.next(e);
         },
       ),
     );
@@ -36,38 +51,28 @@ class DioClient {
   Dio get dio => _dio;
 
   Future<Response> get(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-  }) async {
-    try {
-      final response = await _dio.get(
-        path,
-        queryParameters: queryParameters,
-        options: options,
-      );
-      return response;
-    } on DioException {
-      rethrow;
-    }
+      String path, {
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+      }) async {
+    return _dio.get(
+      path,
+      queryParameters: queryParameters,
+      options: options,
+    );
   }
 
   Future<Response> post(
-    String path, {
-    dynamic data,
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-  }) async {
-    try {
-      final response = await _dio.post(
-        path,
-        data: data,
-        queryParameters: queryParameters,
-        options: options,
-      );
-      return response;
-    } on DioException {
-      rethrow;
-    }
+      String path, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        Options? options,
+      }) async {
+    return _dio.post(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+    );
   }
 }
